@@ -11,22 +11,6 @@ This is a job for the Java exam at Catania's Steve Jobs Academy.
 - Add new shows and theatres via GUI
 - Simple, no external dependencies
 
-## Project Structure
-
-```plaintext
-theatre-manager/
-├── data/
-│   ├── theatres.csv
-│   └── shows.csv
-├── src/
-│   ├── Show.java
-│   ├── Theatre.java
-│   ├── TheatreApp.java
-│   ├── TheatreGUI.java
-│   └── TheatreManager.java
-└── .gitignore
-```
-
 ## How to Run
 
 1. Compile all Java files:
