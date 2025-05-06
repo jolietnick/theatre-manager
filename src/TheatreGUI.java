@@ -6,8 +6,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
 
-
-
 public class TheatreGUI extends JFrame {
     private TheatreManager manager;
     private JTable showTable;
@@ -44,7 +42,11 @@ public class TheatreGUI extends JFrame {
         JButton addTheatreBtn = new JButton("Add Theatre");
         addTheatreBtn.addActionListener(e -> addTheatre());
 
-        genreFilter = new JComboBox<>(new String[] {"All", "Concert", "Opera", "Drama", "Musical"});
+        JButton allShowsBtn = new JButton("All Shows");
+        allShowsBtn.addActionListener(e -> showAllShows());
+        topPanel.add(allShowsBtn);
+
+        genreFilter = new JComboBox<>(new String[] { "All", "Concert", "Opera", "Drama", "Musical" });
         priceFilter = new JTextField(5);
         JButton filterBtn = new JButton("Filter");
         filterBtn.addActionListener(e -> filterShows());
@@ -63,7 +65,9 @@ public class TheatreGUI extends JFrame {
         add(topPanel, BorderLayout.NORTH);
 
         // Table
-        tableModel = new DefaultTableModel(new String[] {"Title", "Genre", "Price", "Date", "Available"}, 0);
+        tableModel = new DefaultTableModel(new String[] { "Theatre", "Title", "Genre", "Price", "Date", "Available" },
+                0);
+
         showTable = new JTable(tableModel);
         add(new JScrollPane(showTable), BorderLayout.CENTER);
 
@@ -80,11 +84,13 @@ public class TheatreGUI extends JFrame {
 
     private void loadShows() {
         Theatre t = getSelectedTheatre();
-        if (t == null) return;
+        if (t == null)
+            return;
         tableModel.setRowCount(0);
         for (Show s : t.getShows()) {
             tableModel.addRow(new Object[] {
-                s.getTitle(), s.getGenre(), s.getPrice(), s.getDateOfShow().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), s.getAvailableTickets()
+                    s.getTitle(), s.getGenre(), s.getPrice(),
+                    s.getDateOfShow().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), s.getAvailableTickets()
             });
         }
         earningsLabel.setText("Earnings: €" + String.format("%.2f", t.getTotalEarnings()));
@@ -92,7 +98,8 @@ public class TheatreGUI extends JFrame {
 
     private void buyTicket() {
         int row = showTable.getSelectedRow();
-        if (row == -1) return;
+        if (row == -1)
+            return;
         String title = (String) tableModel.getValueAt(row, 0);
         Theatre t = getSelectedTheatre();
         if (t.sellTicket(title)) {
@@ -105,7 +112,8 @@ public class TheatreGUI extends JFrame {
 
     private void filterShows() {
         Theatre t = getSelectedTheatre();
-        if (t == null) return;
+        if (t == null)
+            return;
         String genre = genreFilter.getSelectedItem().toString();
         double maxPrice = Double.MAX_VALUE;
         try {
@@ -120,10 +128,29 @@ public class TheatreGUI extends JFrame {
         for (Show s : t.getShows()) {
             if ((genre.equals("All") || s.getGenre().equalsIgnoreCase(genre)) && s.getPrice() <= maxPrice) {
                 tableModel.addRow(new Object[] {
-                    s.getTitle(), s.getGenre(), s.getPrice(), s.getDateOfShow().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), s.getAvailableTickets()
+                        s.getTitle(), s.getGenre(), s.getPrice(),
+                        s.getDateOfShow().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        s.getAvailableTickets()
                 });
             }
         }
+    }
+
+    private void showAllShows() {
+        tableModel.setRowCount(0);
+        for (Theatre t : manager.getTheatres()) {
+            for (Show s : t.getShows()) {
+                tableModel.addRow(new Object[] {
+                        t.getName(), // nome del teatro
+                        s.getTitle(),
+                        s.getGenre(),
+                        s.getPrice(),
+                        s.getDateOfShow().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        s.getAvailableTickets()
+                });
+            }
+        }
+        earningsLabel.setText("Showing all shows from all theatres");
     }
 
     private void addShow() {
@@ -134,17 +161,22 @@ public class TheatreGUI extends JFrame {
         JTextField avail = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Title:")); panel.add(title);
-        panel.add(new JLabel("Genre:")); panel.add(genre);
-        panel.add(new JLabel("Price:")); panel.add(price);
-        panel.add(new JLabel("Date (yyyy-MM-ddTHH:mm):")); panel.add(date);
-        panel.add(new JLabel("Available Tickets:")); panel.add(avail);
+        panel.add(new JLabel("Title:"));
+        panel.add(title);
+        panel.add(new JLabel("Genre:"));
+        panel.add(genre);
+        panel.add(new JLabel("Price:"));
+        panel.add(price);
+        panel.add(new JLabel("Date (yyyy-MM-ddTHH:mm):"));
+        panel.add(date);
+        panel.add(new JLabel("Available Tickets:"));
+        panel.add(avail);
 
         int res = JOptionPane.showConfirmDialog(this, panel, "Add Show", JOptionPane.OK_CANCEL_OPTION);
         if (res == JOptionPane.OK_OPTION) {
             try {
                 Show s = new Show(title.getText(), genre.getText(), Double.parseDouble(price.getText()),
-                                  date.getText(), Integer.parseInt(avail.getText()));
+                        date.getText(), Integer.parseInt(avail.getText()));
                 manager.writeShowToFile("data/shows.csv", s, getSelectedTheatre().getId());
                 manager.loadShows("data/shows.csv");
                 loadShows();
@@ -160,9 +192,12 @@ public class TheatreGUI extends JFrame {
         JTextField city = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("ID:")); panel.add(id);
-        panel.add(new JLabel("Name:")); panel.add(name);
-        panel.add(new JLabel("City:")); panel.add(city);
+        panel.add(new JLabel("ID:"));
+        panel.add(id);
+        panel.add(new JLabel("Name:"));
+        panel.add(name);
+        panel.add(new JLabel("City:"));
+        panel.add(city);
 
         int res = JOptionPane.showConfirmDialog(this, panel, "Add Theatre", JOptionPane.OK_CANCEL_OPTION);
         if (res == JOptionPane.OK_OPTION) {
